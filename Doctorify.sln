@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doctorify.API", "Doctorify.API\Doctorify.API.csproj", "{906C6635-8F17-4E82-8AC3-E3C57FAC8719}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doctorify.Infrastructure", "Doctorify.Infrastructure\Doctorify.Infrastructure.csproj", "{CE2FBCC7-53EA-4D5B-BC9B-5573B1227FAA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doctorify.Domain", "Doctorify.Domain\Doctorify.Domain.csproj", "{CFECA7D5-9C6A-4089-A573-1C806C69CF21}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Doctorify.App", "Doctorify.App\Doctorify.App.csproj", "{E35356C2-7B60-495F-9028-A5E203CEEF29}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{906C6635-8F17-4E82-8AC3-E3C57FAC8719}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{906C6635-8F17-4E82-8AC3-E3C57FAC8719}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{906C6635-8F17-4E82-8AC3-E3C57FAC8719}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{906C6635-8F17-4E82-8AC3-E3C57FAC8719}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE2FBCC7-53EA-4D5B-BC9B-5573B1227FAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE2FBCC7-53EA-4D5B-BC9B-5573B1227FAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE2FBCC7-53EA-4D5B-BC9B-5573B1227FAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE2FBCC7-53EA-4D5B-BC9B-5573B1227FAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFECA7D5-9C6A-4089-A573-1C806C69CF21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFECA7D5-9C6A-4089-A573-1C806C69CF21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFECA7D5-9C6A-4089-A573-1C806C69CF21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFECA7D5-9C6A-4089-A573-1C806C69CF21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E35356C2-7B60-495F-9028-A5E203CEEF29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E35356C2-7B60-495F-9028-A5E203CEEF29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E35356C2-7B60-495F-9028-A5E203CEEF29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E35356C2-7B60-495F-9028-A5E203CEEF29}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
