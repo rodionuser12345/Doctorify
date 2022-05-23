@@ -1,6 +1,8 @@
 ﻿using Doctorify.Infrastructure.Data.Context;
+using Doctorify.Infrastructure.Data.Context.Identity;
 using Doctorify.Infrastructure.Data.Repositories.Abstractions;
 using Doctorify.Infrastructure.Data.Repositories.Implementation;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,12 +17,15 @@ public static class ServiceCollectionExtensions
         {
             optionBuilder.UseSqlServer(configuration.GetConnectionString("DoctorifyConnection"));
         });
-
-        // services.AddIdentity<User, Role>(options =>
-        //          {
-        //              options.Password.RequiredLength = 8;
-        //          })
-        //         .AddEntityFrameworkStores<DoctorifyContext>();
+        
+        services.AddDbContext<AppIdentityDbContext>(optionBuilder =>
+        {
+            optionBuilder.UseSqlServer(configuration.GetConnectionString("DoctorifyIdentityConnection"));
+        });
+        
+        services.AddIdentity<IdentityUser, IdentityRole>()
+               .AddEntityFrameworkStores<AppIdentityDbContext>()
+               .AddDefaultTokenProviders();
 
         services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
         services.AddScoped(typeof(ITelephoneNumberRepository), typeof(TelephoneNumberRepository));

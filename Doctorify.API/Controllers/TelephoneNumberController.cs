@@ -2,11 +2,13 @@
 using Doctorify.Domain.Models.Dtos;
 using Doctorify.Domain.Models.Entities;
 using Doctorify.Infrastructure.Data.Repositories.Abstractions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Doctorify.Controllers;
 
+[Authorize]
 public class TelephoneNumberController : BaseApiController
 {
     private readonly ITelephoneNumberRepository _repository;

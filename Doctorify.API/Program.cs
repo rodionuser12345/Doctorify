@@ -37,6 +37,7 @@ app.UseExceptionHandling();
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseDbTransaction();
@@ -44,3 +45,4 @@ app.UseDbTransaction();
 app.MapControllers();
 
 await app.RunAsync();
+
