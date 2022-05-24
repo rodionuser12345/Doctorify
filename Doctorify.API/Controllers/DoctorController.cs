@@ -2,32 +2,33 @@
 using Doctorify.Domain.Models.Dtos;
 using Doctorify.Domain.Models.Entities;
 using Doctorify.Infrastructure.Data.Repositories.Abstractions;
+using Doctorify.Infrastructure.Services.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Doctorify.Controllers;
 
 public class DoctorController : BaseApiController
 {
-    private readonly IDoctorRepository _repository;
-    private readonly ITelephoneNumberRepository _telRepository;
-    private readonly IMedicalInstitutionRepository _medRepository;
-    private readonly IAddressRepository _adrRepository;
+    private readonly IDoctorService _doctorService;
+    private readonly ITelephoneService _telephoneService;
+    private readonly IMedicalInstitutionService _medicalInstitutionService;
+    private readonly IAddressService _addressService;
     private readonly IMapper _mapper;
 
-    public DoctorController(IMapper mapper, IDoctorRepository repository, ITelephoneNumberRepository telRepository,
-                            IMedicalInstitutionRepository medRepository, IAddressRepository adrRepository)
+    public DoctorController(IMapper mapper, IDoctorService doctorService, ITelephoneService telephoneService,
+                            IMedicalInstitutionService medicalInstitutionService, IAddressService addressService)
     {
         _mapper = mapper;
-        _repository = repository;
-        _telRepository = telRepository;
-        _medRepository = medRepository;
-        _adrRepository = adrRepository;
+        _doctorService = doctorService;
+        _telephoneService = telephoneService;
+        _medicalInstitutionService = medicalInstitutionService;
+        _addressService = addressService;
     }
 
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<DoctorResponseDto>>> GetDoctorsAsync()
     {
-        var doctors = await _repository.GetAllAsync();
+        var doctors = await _doctorService.GetDoctorsAsync();
         var doctorsDto = _mapper.Map<IReadOnlyList<DoctorResponseDto>>(doctors);
         return Ok(doctorsDto);
     }
@@ -36,7 +37,7 @@ public class DoctorController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<DoctorResponseDto>> GetDoctorByIdAsync(long id)
     {
-        var doctor = await _repository.GetByIdAsync(id);
+        var doctor = await _doctorService.GetDoctorByIdAsync(id);
         var doctorDto = _mapper.Map<DoctorResponseDto>(doctor);
         return Ok(doctorDto);
     }
@@ -44,13 +45,13 @@ public class DoctorController : BaseApiController
     [HttpPost]
     public async Task<ActionResult<DoctorResponseDto>> CreateDoctorAsync(DoctorRequestDto doctorDto)
     {
-        await using var transaction = await _repository.StartTransactionAsync();
+        await using var transaction = await _doctorService.StartTransactionAsync();
         try
         {
-            var doctor = await _repository.Insert(_mapper.Map<Doctor>(doctorDto));
+            var doctor = await _doctorService.CreateDoctorAsync(_mapper.Map<Doctor>(doctorDto));
             var result = doctor.Entity;
-            result.MedicalInstitution = await _medRepository.GetByIdAsync(result.MedicalInstitutionId);
-            result.TelephoneNumber = await _telRepository.GetByIdAsync(result.TelephoneNumberId);
+            result.MedicalInstitution = await _medicalInstitutionService.GetMedicalInstitutionByIdAsync(result.MedicalInstitutionId);
+            result.TelephoneNumber = await _telephoneService.GetTelephoneByIdAsync(result.TelephoneNumberId);
             await transaction.CommitAsync();
             var value = _mapper.Map<DoctorResponseDto>(doctor.Entity);
             return Ok(value);
@@ -66,10 +67,10 @@ public class DoctorController : BaseApiController
     [Route("batch")]
     public async Task<ActionResult<long>> CreateDoctorBatchAsync(IList<DoctorRequestDto> doctorDtoList)
     {
-        await using var transaction = await _repository.StartTransactionAsync();
+        await using var transaction = await _doctorService.StartTransactionAsync();
         try
         {
-            var value = await _repository.BulkInsert(_mapper.Map<IReadOnlyList<Doctor>>(doctorDtoList));
+            var value = await _doctorService.CreateDoctorBatchAsync(_mapper.Map<IReadOnlyList<Doctor>>(doctorDtoList));
             await transaction.CommitAsync();
             return Ok(value);
         }
@@ -83,12 +84,12 @@ public class DoctorController : BaseApiController
     [HttpPut("{id:long}")]
     public async Task<ActionResult> UpdateDoctorAsync(long id, DoctorRequestDto updateDto)
     {
-        var validDoctor = await _repository.GetByIdAsync(id);
+        var validDoctor = await _doctorService.GetDoctorByIdAsync(id);
         var result = validDoctor ?? null;
         if (result is null)
             return NotFound();
         _mapper.Map(updateDto, result);
-        await _repository.Update(result);
+        await _doctorService.UpdateDoctorAsync(result);
         return NoContent();
     }
 
@@ -111,14 +112,14 @@ public class DoctorController : BaseApiController
     [HttpDelete("{id:long}")]
     public async Task<ActionResult<long>> DeleteDoctorByIdAsync(long id)
     {
-        var doctorToDelete = await _repository.GetByIdAsync(id);
+        var doctorToDelete = await _doctorService.GetDoctorByIdAsync(id);
         var result = doctorToDelete ?? null;
         if (result is null)
         {
             return NotFound(id);
         }
 
-        await _repository.Delete(id);
+        await _doctorService.DeleteDoctorByIdAsync(id);
         return Ok(id);
     }
 }

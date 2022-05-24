@@ -1,29 +1,28 @@
 ﻿using AutoMapper;
 using Doctorify.Domain.Models.Dtos;
 using Doctorify.Domain.Models.Entities;
-using Doctorify.Infrastructure.Data.Repositories.Abstractions;
-using Microsoft.AspNetCore.Authorization;
+using Doctorify.Infrastructure.Services.Abstractions;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Doctorify.Controllers;
 
-[Authorize]
 public class TelephoneNumberController : BaseApiController
 {
-    private readonly ITelephoneNumberRepository _repository;
+    private readonly ITelephoneService _telephoneService;
     private readonly IMapper _mapper;
 
-    public TelephoneNumberController(IMapper mapper, ITelephoneNumberRepository repository)
+    public TelephoneNumberController(IMapper mapper, ITelephoneService telephoneService)
     {
         _mapper = mapper;
-        _repository = repository;
+        _telephoneService = telephoneService;
     }
 
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<TelephoneNumberDto>>> GetTelephonesAsync()
     {
-        var telephones = await _repository.GetAllAsync();
+        var telephones = _telephoneService.GetTelephonesAsync();
         var telephonesDto = _mapper.Map<IReadOnlyList<TelephoneNumberDto>>(telephones);
         return Ok(telephonesDto);
     }
@@ -32,7 +31,7 @@ public class TelephoneNumberController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<TelephoneNumberDto>> GetTelephoneByIdAsync(long id)
     {
-        var telephone = await _repository.GetByIdAsync(id);
+        var telephone = await _telephoneService.GetTelephoneByIdAsync(id);
         var telephoneDto = _mapper.Map<TelephoneNumberDto>(telephone);
         return Ok(telephoneDto);
     }
@@ -40,10 +39,10 @@ public class TelephoneNumberController : BaseApiController
     [HttpPost]
     public async Task<ActionResult<TelephoneNumberDto>> CreateTelephoneAsync(TelephoneNumberDto telephoneDto)
     {
-        await using var transaction = await _repository.StartTransactionAsync();
+        await using var transaction = await _telephoneService.StartTransactionAsync();
         try
         {
-            var telephone = await _repository.Insert(_mapper.Map<TelephoneNumber>(telephoneDto));
+            var telephone = await _telephoneService.CreateTelephoneAsync(_mapper.Map<TelephoneNumber>(telephoneDto));
             await transaction.CommitAsync();
             var value = _mapper.Map<TelephoneNumberDto>(telephone.Entity);
             return Ok(value);
@@ -59,10 +58,10 @@ public class TelephoneNumberController : BaseApiController
     [Route("batch")]
     public async Task<ActionResult<long>> CreateTelephoneBatchAsync(IList<TelephoneNumberDto> telephoneDtoList)
     {
-        await using var transaction = await _repository.StartTransactionAsync();
+        await using var transaction = await _telephoneService.StartTransactionAsync();
         try
         {
-            var value = await _repository.BulkInsert(_mapper.Map<IReadOnlyList<TelephoneNumber>>(telephoneDtoList));
+            var value = await _telephoneService.CreateTelephoneBatchAsync(_mapper.Map<IEnumerable<TelephoneNumber>>(telephoneDtoList));
             await transaction.CommitAsync();
             return Ok(value);
         }
@@ -76,19 +75,19 @@ public class TelephoneNumberController : BaseApiController
     [HttpPut("{id:long}")]
     public async Task<ActionResult> UpdateTelephoneAsync(long id, TelephoneNumberDto updateDto)
     {
-        var validTelephone = await _repository.GetByIdAsync(id);
+        var validTelephone = await _telephoneService.GetTelephoneByIdAsync(id);
         var result = validTelephone ?? null;
         if (result is null)
             return NotFound();
         _mapper.Map(updateDto, result);
-        await _repository.Update(result);
+        await _telephoneService.UpdateTelephoneAsync(result);
         return NoContent();
     }
 
     [HttpPatch("{id:long}")]
     public async Task<ActionResult> PartialUpdateTelephoneAsync(long id, [FromBody] JsonPatchDocument<TelephoneNumberDto> jsonPatchDoc)
     {
-        var validTelephone = await _repository.GetByIdAsync(id);
+        var validTelephone = await _telephoneService.GetTelephoneByIdAsync(id);
         var result = validTelephone ?? null;
         if (result is null)
             return NotFound();
@@ -97,21 +96,21 @@ public class TelephoneNumberController : BaseApiController
         if (!TryValidateModel(telephoneNumberToPatch))
             return ValidationProblem(ModelState);
         _mapper.Map(telephoneNumberToPatch, validTelephone);
-        await _repository.Update(result);
+        await _telephoneService.UpdateTelephoneAsync(result);
         return NoContent();
     }
 
     [HttpDelete("{id:long}")]
     public async Task<ActionResult<long>> DeleteTelephoneByIdAsync(long id)
     {
-        var telephoneToDelete = await _repository.GetByIdAsync(id);
+        var telephoneToDelete = await _telephoneService.GetTelephoneByIdAsync(id);
         var result = telephoneToDelete ?? null;
         if (result is null)
         {
             return NotFound(id);
         }
 
-        await _repository.Delete(id);
+        await _telephoneService.DeleteTelephoneByIdAsync(id);
         return Ok(id);
     }
 }

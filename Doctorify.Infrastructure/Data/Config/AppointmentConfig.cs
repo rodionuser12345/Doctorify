@@ -18,8 +18,10 @@ public class AppointmentConfig : IEntityTypeConfiguration<Appointment>
                .HasColumnType("datetime")
                .IsRequired();
         
-        builder.Property(a => a.Cabinet)
-               .HasColumnName("CabinetNumber")
+        builder.Property(a => a.AppointmentStatus)
+               .HasColumnName("AppointmentStatus")
+               .HasMaxLength(20)
+               .HasConversion<string>()
                .IsRequired();
 
         builder.HasOne(a => a.Doctor)

@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using System.Text;
 using Doctorify.Infrastructure.Extensions;
-using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;

@@ -2,6 +2,5 @@
 
 public class TelephoneNumberDto
 {
-    public string Home { get; set; }
-    public string Work { get; set; }
+    public string Number { get; set; }
 }

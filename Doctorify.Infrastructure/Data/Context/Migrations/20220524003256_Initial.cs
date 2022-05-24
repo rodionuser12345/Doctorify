@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Doctorify.Infrastructure.Migrations
+namespace Doctorify.Infrastructure.Data.Context.Migrations
 {
     public partial class Initial : Migration
     {
@@ -20,8 +20,7 @@ namespace Doctorify.Infrastructure.Migrations
                     City = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Street = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     PostalCode = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false),
-                    IDPN = table.Column<int>(type: "int", nullable: false)
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -34,10 +33,8 @@ namespace Doctorify.Infrastructure.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Home = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: false),
-                    Work = table.Column<string>(type: "nvarchar(9)", maxLength: 9, nullable: false),
-                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false),
-                    IDPN = table.Column<int>(type: "int", nullable: false)
+                    Number = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: false),
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -53,8 +50,7 @@ namespace Doctorify.Infrastructure.Migrations
                     FullName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     AddressId = table.Column<long>(type: "bigint", nullable: false),
                     TelephoneNumberId = table.Column<long>(type: "bigint", nullable: false),
-                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false),
-                    IDPN = table.Column<int>(type: "int", nullable: false)
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -86,8 +82,7 @@ namespace Doctorify.Infrastructure.Migrations
                     Diagnose = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
                     TelephoneNumberId = table.Column<long>(type: "bigint", nullable: false),
                     AddressId = table.Column<long>(type: "bigint", nullable: false),
-                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false),
-                    IDPN = table.Column<int>(type: "int", nullable: false)
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -118,8 +113,7 @@ namespace Doctorify.Infrastructure.Migrations
                     DateOfBirth = table.Column<DateTime>(type: "date", nullable: false),
                     TelephoneNumberId = table.Column<long>(type: "bigint", nullable: false),
                     MedicalInstitutionId = table.Column<long>(type: "bigint", nullable: false),
-                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false),
-                    IDPN = table.Column<int>(type: "int", nullable: false)
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -145,11 +139,10 @@ namespace Doctorify.Infrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Date = table.Column<DateTime>(type: "datetime", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    CabinetNumber = table.Column<short>(type: "smallint", nullable: false),
+                    AppointmentStatus = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     DoctorId = table.Column<long>(type: "bigint", nullable: false),
                     PatientId = table.Column<long>(type: "bigint", nullable: false),
-                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false),
-                    IDPN = table.Column<int>(type: "int", nullable: false)
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false)
                 },
                 constraints: table =>
                 {

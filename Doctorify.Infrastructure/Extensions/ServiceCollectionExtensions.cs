@@ -2,6 +2,8 @@
 using Doctorify.Infrastructure.Data.Context.Identity;
 using Doctorify.Infrastructure.Data.Repositories.Abstractions;
 using Doctorify.Infrastructure.Data.Repositories.Implementation;
+using Doctorify.Infrastructure.Services.Abstractions;
+using Doctorify.Infrastructure.Services.Implementations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -35,6 +37,13 @@ public static class ServiceCollectionExtensions
         services.AddScoped(typeof(IMedicalInstitutionRepository), typeof(MedicalInstitutionRepository));
         services.AddScoped(typeof(IMedicalInstitutionRepository), typeof(MedicalInstitutionRepository));
         services.AddScoped(typeof(IAppointmentRepository), typeof(AppointmentRepository));
+        
+        services.AddScoped(typeof(ITelephoneService), typeof(TelephoneService));
+        services.AddScoped(typeof(IAddressService), typeof(AddressService));
+        services.AddScoped(typeof(IMedicalInstitutionService), typeof(MedicalInstitutionService));
+        services.AddScoped(typeof(IPatientService), typeof(PatientService));
+        services.AddScoped(typeof(IDoctorService), typeof(DoctorService));
+        services.AddScoped(typeof(IAppointmentService), typeof(AppointmentService));
 
         return services;
     }

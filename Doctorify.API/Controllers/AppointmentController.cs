@@ -2,23 +2,24 @@
 using Doctorify.Domain.Models.Dtos;
 using Doctorify.Domain.Models.Entities;
 using Doctorify.Infrastructure.Data.Repositories.Abstractions;
+using Doctorify.Infrastructure.Services.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Doctorify.Controllers;
 
 public class AppointmentController : BaseApiController
 {
-    private readonly IAppointmentRepository _repository;
-    private readonly IDoctorRepository _doctorRepository;
-    private readonly IPatientRepository _patientRepository;
+    private readonly IAppointmentService _appointmentService;
+    private readonly IDoctorService _doctorService;
+    private readonly IPatientService _patientService;
     private readonly IMapper _mapper;
 
 
-    public AppointmentController(IAppointmentRepository appointmentRepository, IDoctorRepository doctorRepository, IPatientRepository patientRepository, IMapper mapper)
+    public AppointmentController(IAppointmentService appointmentService, IDoctorService doctorService, IPatientService patientService, IMapper mapper)
     {
-        _repository = appointmentRepository;
-        _doctorRepository = doctorRepository;
-        _patientRepository = patientRepository;
+        _appointmentService = appointmentService;
+        _doctorService = doctorService;
+        _patientService = patientService;
         _mapper = mapper;
     }
     
@@ -26,7 +27,7 @@ public class AppointmentController : BaseApiController
     [HttpGet]
     public async Task<IActionResult> GetAppointmentsAsync()
     {
-        var appointments = await _repository.GetAllAsync();
+        var appointments = await _appointmentService.GetAppointmentsAsync();
         return Ok(appointments);
     }
     
@@ -39,7 +40,7 @@ public class AppointmentController : BaseApiController
             return BadRequest(ModelState);
         }
 
-        var appointment = await _repository.GetByIdAsync(id);
+        var appointment = await _appointmentService.GetAppointmentByIdAsync(id);
 
         if (appointment == null)
         {
@@ -63,12 +64,12 @@ public class AppointmentController : BaseApiController
             return BadRequest();
         }
 
-        var validAppointment = await _repository.GetByIdAsync(id);
+        var validAppointment = await _appointmentService.GetAppointmentByIdAsync(id);
         var result = validAppointment ?? null;
         if (result is null)
             return NotFound();
         
-        await _repository.Update(result);
+        await _appointmentService.UpdateAppointmentAsync(result);
 
         return NoContent();
     }
@@ -82,13 +83,13 @@ public class AppointmentController : BaseApiController
             return BadRequest(ModelState);
         }
 
-        await using var transaction = await _repository.StartTransactionAsync();
+        await using var transaction = await _appointmentService.StartTransactionAsync();
         try
         {
-            var rEntry = await _repository.Insert(appointment);
+            var rEntry = await _appointmentService.CreateAppointmentAsync(appointment);
             var result = rEntry.Entity;
-            result.Doctor = await _doctorRepository.GetByIdAsync(result.DoctorId);
-            result.Patient = await _patientRepository.GetByIdAsync(result.PatientId);
+            result.Doctor = await _doctorService.GetDoctorByIdAsync(result.DoctorId);
+            result.Patient = await _patientService.GetPatientByIdAsync(result.PatientId);
             await transaction.CommitAsync();
             return Ok(result);
         }
@@ -108,10 +109,10 @@ public class AppointmentController : BaseApiController
             return BadRequest(ModelState);
         }
 
-        await using var transaction = await _repository.StartTransactionAsync();
+        await using var transaction = await _appointmentService.StartTransactionAsync();
         try
         {
-            var value = await _repository.BulkInsert(appointments);
+            var value = await _appointmentService.CreateAppointmentBatchAsync(appointments);
             await transaction.CommitAsync();
             return Ok(value);
         }
@@ -131,13 +132,13 @@ public class AppointmentController : BaseApiController
             return BadRequest(ModelState);
         }
 
-        var appointment = await _repository.GetByIdAsync(id);
+        var appointment = await _appointmentService.GetAppointmentByIdAsync(id);
         if (appointment == null)
         {
             return NotFound();
         }
 
-        await _repository.Delete(id);
+        await _appointmentService.DeleteAppointmentByIdAsync(id);
 
         return Ok(id);
     }

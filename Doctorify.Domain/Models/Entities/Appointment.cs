@@ -1,10 +1,12 @@
-﻿namespace Doctorify.Domain.Models.Entities;
+﻿using Doctorify.Domain.Models.Enums;
+
+namespace Doctorify.Domain.Models.Entities;
 
 public class Appointment : BaseEntity
 {
     public DateTime Date { get; set; }
     public string Description { get; set; }
-    public short Cabinet { get; set; }
+    public AppointmentStatus AppointmentStatus { get; set; }
     
     public long DoctorId { get; set; }
     public Doctor Doctor { get; set; }

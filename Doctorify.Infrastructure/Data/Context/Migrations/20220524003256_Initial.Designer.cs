@@ -9,10 +9,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Doctorify.Infrastructure.Migrations
+namespace Doctorify.Infrastructure.Data.Context.Migrations
 {
     [DbContext(typeof(DoctorifyContext))]
-    [Migration("20220523142357_Initial")]
+    [Migration("20220524003256_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -43,9 +43,6 @@ namespace Doctorify.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)")
                         .HasColumnName("Country");
-
-                    b.Property<int>("IDPN")
-                        .HasColumnType("int");
 
                     b.Property<string>("PostalCode")
                         .IsRequired()
@@ -84,9 +81,11 @@ namespace Doctorify.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
-                    b.Property<short>("Cabinet")
-                        .HasColumnType("smallint")
-                        .HasColumnName("CabinetNumber");
+                    b.Property<string>("AppointmentStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("AppointmentStatus");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime")
@@ -100,9 +99,6 @@ namespace Doctorify.Infrastructure.Migrations
 
                     b.Property<long>("DoctorId")
                         .HasColumnType("bigint");
-
-                    b.Property<int>("IDPN")
-                        .HasColumnType("int");
 
                     b.Property<long>("PatientId")
                         .HasColumnType("bigint");
@@ -139,9 +135,6 @@ namespace Doctorify.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)")
                         .HasColumnName("FirstName");
-
-                    b.Property<int>("IDPN")
-                        .HasColumnType("int");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -192,9 +185,6 @@ namespace Doctorify.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("IDPN")
-                        .HasColumnType("int");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -249,9 +239,6 @@ namespace Doctorify.Infrastructure.Migrations
                         .HasColumnType("nvarchar(50)")
                         .HasColumnName("FirstName");
 
-                    b.Property<int>("IDPN")
-                        .HasColumnType("int");
-
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -285,26 +272,17 @@ namespace Doctorify.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
-                    b.Property<string>("Home")
+                    b.Property<string>("Number")
                         .IsRequired()
                         .HasMaxLength(8)
                         .HasColumnType("nvarchar(8)")
-                        .HasColumnName("Home");
-
-                    b.Property<int>("IDPN")
-                        .HasColumnType("int");
+                        .HasColumnName("Number");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
-
-                    b.Property<string>("Work")
-                        .IsRequired()
-                        .HasMaxLength(9)
-                        .HasColumnType("nvarchar(9)")
-                        .HasColumnName("Work");
 
                     b.HasKey("Id");
 

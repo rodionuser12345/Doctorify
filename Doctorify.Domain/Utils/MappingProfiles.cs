@@ -64,15 +64,11 @@ public class MappingProfiles : Profile
                       o => o.MapFrom(s => s.TelephoneNumberId));
 
         CreateMap<TelephoneNumber, TelephoneNumberDto>()
-           .ForMember(d => d.Home,
-                      o => o.MapFrom(s => s.Home))
-           .ForMember(d => d.Work,
-                      o => o.MapFrom(s => s.Work));
+           .ForMember(d => d.Number,
+                      o => o.MapFrom(s => s.Number));
         CreateMap<TelephoneNumberDto, TelephoneNumber>()
-           .ForMember(d => d.Home,
-                      o => o.MapFrom(s => s.Home))
-           .ForMember(d => d.Work,
-                      o => o.MapFrom(s => s.Work));
+           .ForMember(d => d.Number,
+                      o => o.MapFrom(s => s.Number));
 
         CreateMap<PatientRequestDto, Patient>()
            .ForMember(d => d.FirstName,

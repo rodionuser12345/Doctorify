@@ -2,25 +2,26 @@
 using Doctorify.Domain.Models.Dtos;
 using Doctorify.Domain.Models.Entities;
 using Doctorify.Infrastructure.Data.Repositories.Abstractions;
+using Doctorify.Infrastructure.Services.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Doctorify.Controllers;
 
 public class PatientController : BaseApiController
 {
-    private readonly IPatientRepository _repository;
+    private readonly IPatientService _patientService;
     private readonly IMapper _mapper;
 
-    public PatientController(IMapper mapper, IPatientRepository repository)
+    public PatientController(IMapper mapper, IPatientRepository repository, IPatientService patientService)
     {
         _mapper = mapper;
-        _repository = repository;
+        _patientService = patientService;
     }
 
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<PatientResponseDto>>> GetPatientsAsync()
     {
-        var patients = await _repository.GetAllAsync();
+        var patients = await _patientService.GetPatientsAsync();
         var patientsDto = _mapper.Map<IReadOnlyList<PatientResponseDto>>(patients);
         return Ok(patientsDto);
     }
@@ -29,7 +30,7 @@ public class PatientController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<PatientResponseDto>> GetPatientByIdAsync(long id)
     {
-        var patient = await _repository.GetByIdAsync(id);
+        var patient = await _patientService.GetPatientByIdAsync(id);
         var patientDto = _mapper.Map<PatientResponseDto>(patient);
         return Ok(patientDto);
     }
@@ -37,10 +38,10 @@ public class PatientController : BaseApiController
     [HttpPost]
     public async Task<ActionResult<PatientResponseDto>> CreatePatientAsync(PatientRequestDto patientDto)
     {
-        await using var transaction = await _repository.StartTransactionAsync();
+        await using var transaction = await _patientService.StartTransactionAsync();
         try
         {
-            var patient = await _repository.Insert(_mapper.Map<Patient>(patientDto));
+            var patient = await _patientService.CreatePatientAsync(_mapper.Map<Patient>(patientDto));
             await transaction.CommitAsync();
             var value = _mapper.Map<PatientResponseDto>(patient.Entity);
             return Ok(value);
@@ -56,10 +57,10 @@ public class PatientController : BaseApiController
     [Route("batch")]
     public async Task<ActionResult<long>> CreatePatientBatchAsync(IList<PatientRequestDto> patientDtoList)
     {
-        await using var transaction = await _repository.StartTransactionAsync();
+        await using var transaction = await _patientService.StartTransactionAsync();
         try
         {
-            var value = await _repository.BulkInsert(_mapper.Map<IReadOnlyList<Patient>>(patientDtoList));
+            var value = await _patientService.CreatePatientBatchAsync(_mapper.Map<IReadOnlyList<Patient>>(patientDtoList));
             await transaction.CommitAsync();
             return Ok(value);
         }
@@ -73,19 +74,19 @@ public class PatientController : BaseApiController
     [HttpPut("{id:long}")]
     public async Task<ActionResult> UpdatePatientAsync(long id, PatientRequestDto updateDto)
     {
-        var validPatient = await _repository.GetByIdAsync(id);
+        var validPatient = await _patientService.GetPatientByIdAsync(id);
         var result = validPatient ?? null;
         if (result is null)
             return NotFound();
         _mapper.Map(updateDto, result);
-        await _repository.Update(result);
+        await _patientService.UpdatePatientAsync(result);
         return NoContent();
     }
 
     // [HttpPatch("{id:long}")]
     // public async Task<ActionResult> PartialUpdatePatient(long id, [FromBody] JsonPatchDocument<PatientRequestDto> jsonPatchDoc)
     // {
-    //     var validPatient = await _repository.GetByIdAsync(id);
+    //     var validPatient = await _patientService.GetByIdAsync(id);
     //     var result = validPatient ?? null;
     //     if (result is null)
     //         return NotFound();
@@ -94,21 +95,21 @@ public class PatientController : BaseApiController
     //     if (!TryValidateModel(patientToPatch))
     //         return ValidationProblem(ModelState);
     //     _mapper.Map(patientToPatch, validPatient);
-    //     await _repository.Update(result);
+    //     await _patientService.Update(result);
     //     return NoContent();
     // }
 
     [HttpDelete("{id:long}")]
     public async Task<ActionResult<long>> DeletePatientByIdAsync(long id)
     {
-        var patientToDelete = await _repository.GetByIdAsync(id);
+        var patientToDelete = await _patientService.GetPatientByIdAsync(id);
         var result = patientToDelete ?? null;
         if (result is null)
         {
             return NotFound(id);
         }
 
-        await _repository.Delete(id);
+        await _patientService.DeletePatientByIdAsync(id);
         return Ok(id);
     }
 }

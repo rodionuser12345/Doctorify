@@ -1,8 +1,10 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using AutoMapper;
 using Doctorify.Domain.Models.Auth;
 using Doctorify.Domain.Models.Dtos.Identity;
+using Doctorify.Infrastructure.Data.Repositories.Abstractions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -17,14 +19,24 @@ public class AuthController : ControllerBase
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IConfiguration _configuration;
 
+    private readonly IAddressRepository _addressRepository;
+    private readonly ITelephoneNumberRepository _telephoneNumberRepository;
+    private readonly IPatientRepository _patientRepository;
+    private readonly IMapper _mapper;
+
     public AuthController(
         UserManager<IdentityUser> userManager,
         RoleManager<IdentityRole> roleManager,
-        IConfiguration configuration)
+        IConfiguration configuration, IMapper mapper, IAddressRepository addressRepository,
+        ITelephoneNumberRepository telephoneNumberRepository, IPatientRepository patientRepository)
     {
         _userManager = userManager;
         _roleManager = roleManager;
         _configuration = configuration;
+        _mapper = mapper;
+        _addressRepository = addressRepository;
+        _telephoneNumberRepository = telephoneNumberRepository;
+        _patientRepository = patientRepository;
     }
 
     [HttpPost]
@@ -33,12 +45,12 @@ public class AuthController : ControllerBase
     {
         var user = await _userManager.FindByEmailAsync(model.Email);
         if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password)) return Unauthorized();
-        
+
         var userRoles = await _userManager.GetRolesAsync(user);
 
         var authClaims = new List<Claim>
                          {
-                             new(ClaimTypes.Name, user.UserName),
+                             new(ClaimTypes.Name, user.Email),
                              new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                          };
 
@@ -55,7 +67,7 @@ public class AuthController : ControllerBase
 
     [HttpPost]
     [Route("register-patient")]
-    public async Task<IActionResult> RegisterPatient([FromBody] RegisterModel model)
+    public async Task<IActionResult> RegisterPatient([FromBody] RegisterModelPatient model)
     {
         var userExists = await _userManager.FindByEmailAsync(model.Email);
         if (userExists != null)
@@ -64,22 +76,34 @@ public class AuthController : ControllerBase
 
         IdentityUser user = new()
                             {
+                                UserName = model.Email,
                                 Email = model.Email,
                                 SecurityStamp = Guid.NewGuid().ToString(),
                             };
-        
+
         var result = await _userManager.CreateAsync(user, model.Password);
         if (!result.Succeeded)
             return StatusCode(StatusCodes.Status500InternalServerError,
                               new AuthResponseDto
                               {Status = "Error", Message = "User creation failed! Please check user details and try again."});
 
-        return Ok(new AuthResponseDto {Status = "Success", Message = "User created successfully!"});
+        var userRoles = await _userManager.GetRolesAsync(user);
+        var authClaims = new List<Claim>
+                         {
+                             new(ClaimTypes.Name, user.Email),
+                             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                         };
+
+        authClaims.AddRange(userRoles.Select(userRole => new Claim(ClaimTypes.Role, userRole)));
+
+        var token = GetToken(authClaims).EncodedPayload;
+
+        return Ok(new AuthResponseDto {Status = "Success", Message = "User created successfully!", Bearer = token});
     }
 
     [HttpPost]
     [Route("register-doctor")]
-    public async Task<IActionResult> RegisterDoctor([FromBody] RegisterModel model)
+    public async Task<IActionResult> RegisterDoctor([FromBody] RegisterModelDoctor model)
     {
         var userExists = await _userManager.FindByEmailAsync(model.Email);
         if (userExists != null)
@@ -88,6 +112,7 @@ public class AuthController : ControllerBase
 
         IdentityUser user = new()
                             {
+                                UserName = model.Email,
                                 Email = model.Email,
                                 SecurityStamp = Guid.NewGuid().ToString(),
                             };
@@ -101,7 +126,7 @@ public class AuthController : ControllerBase
 
         if (!await _roleManager.RoleExistsAsync(UserRoles.Doctor))
             await _roleManager.CreateAsync(new IdentityRole(UserRoles.Doctor));
-        
+
         if (!await _roleManager.RoleExistsAsync(UserRoles.Patient))
             await _roleManager.CreateAsync(new IdentityRole(UserRoles.Patient));
 
@@ -115,7 +140,18 @@ public class AuthController : ControllerBase
             await _userManager.AddToRoleAsync(user, UserRoles.Patient);
         }
 
-        return Ok(new AuthResponseDto {Status = "Success", Message = "User created successfully!"});
+        var userRoles = await _userManager.GetRolesAsync(user);
+        var authClaims = new List<Claim>
+                         {
+                             new(ClaimTypes.Name, user.Email),
+                             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                         };
+
+        authClaims.AddRange(userRoles.Select(userRole => new Claim(ClaimTypes.Role, userRole)));
+
+        var token = GetToken(authClaims).EncodedPayload;
+
+        return Ok(new AuthResponseDto {Status = "Success", Message = "User created successfully!", Bearer = token});
     }
 
     private JwtSecurityToken GetToken(IEnumerable<Claim> authClaims)

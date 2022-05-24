@@ -13,8 +13,8 @@ public class AppointmentValidator : AbstractValidator<Appointment>
         RuleFor(x => x.Date)
            .NotEmpty().WithMessage("Date is required")
            .Must(x => x.Date >= DateTime.Now + TimeSpan.FromDays(1)).WithMessage("Date must be at least 1 day ahead from now");
-        RuleFor(x => x.Cabinet)
-           .NotNull().WithMessage("Cabinet is required");
+        RuleFor(x => x.AppointmentStatus)
+           .NotNull().WithMessage("AppointmentStatus is required");
         RuleFor(x => x.DoctorId)
            .NotNull().WithMessage("Doctor is required");
         RuleFor(x => x.PatientId)

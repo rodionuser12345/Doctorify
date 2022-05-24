@@ -2,12 +2,12 @@
 
 public enum BloodType : byte
 {
-    A_Rh_Positive = 0,
-    A_Rh_Negative = 1,
-    B_Rh_Positive = 2,
-    B_Rh_Negative = 3,
-    AB_Rh_Positive = 4,
-    AB_Rh_Negative = 5,
-    O_Rh_Positive = 6,
-    O_Rh_Negative = 7
+    A_Rh_Positive,
+    A_Rh_Negative,
+    B_Rh_Positive,
+    B_Rh_Negative,
+    AB_Rh_Positive,
+    AB_Rh_Negative,
+    O_Rh_Positive,
+    O_Rh_Negative
 }

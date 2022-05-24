@@ -8,14 +8,9 @@ public class TelephoneNumberConfig : IEntityTypeConfiguration<TelephoneNumber>
 {
     public void Configure(EntityTypeBuilder<TelephoneNumber> builder)
     {
-        builder.Property(t => t.Home)
-               .HasColumnName("Home")
+        builder.Property(t => t.Number)
+               .HasColumnName("Number")
                .HasMaxLength(8)
-               .IsRequired();
-
-        builder.Property(t => t.Work)
-               .HasColumnName("Work")
-               .HasMaxLength(9)
                .IsRequired();
 
         builder.HasOne(t => t.Doctor)

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Doctorify.Infrastructure.Migrations
+namespace Doctorify.Infrastructure.Identity.Migrations
 {
     public partial class IdentityInitial : Migration
     {
